@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import pymp
 
+
 def minus(variable):
     result = variable
     if variable < 0:
@@ -39,7 +40,7 @@ def processing(image_):
 
     rows, columns = np.array(gray).shape
 
-    output = np.copy(gray)
+    output = pymp.shared.array((rows, columns), dtype='uint8')
 
     with pymp.Parallel() as p:
         for i in p.range(0, rows):
@@ -64,18 +65,17 @@ def processing(image_):
     return gray, gauss, edges, threshold, distance, normal, output
 
 
-image_name = "image1"
-image_type = ".png"
-
-image = cv2.imread("images/"+image_name+image_type, cv2.IMREAD_COLOR)
+image = cv2.imread("../images/image1.png", cv2.IMREAD_COLOR)
 
 gray_, gauss_, edges_, threshold_, distance_,  normal_, output_ = processing(image)
 
-cv2.imshow('original', image)
-cv2.imshow('gray', gray_)
-cv2.imshow('gauss', gauss_)
-cv2.imshow('edges', edges_)
-cv2.imshow('result', output_)
+images = [gray_, gauss_, edges_, threshold_, distance_, normal_, output_]
+names = ['gray', 'gauss', 'edges', 'threshold', 'distance', 'normal', 'output']
+
+i = 0
+for name in names:
+    cv2.imwrite('../result/'+name+'.png', images[i])
+    i += 1
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
