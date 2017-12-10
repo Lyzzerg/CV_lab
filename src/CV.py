@@ -19,7 +19,6 @@ def plus(variable1, variable2):
 
 def processing(image_):
     edge_thresh = 12
-    gauss_sigma = 3
     mask_size = cv2.DIST_MASK_5
     dist_type = cv2.DIST_L2
     coefficient = 3
