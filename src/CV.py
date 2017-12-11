@@ -1,3 +1,5 @@
+from random import random
+
 import cv2
 import numpy as np
 import pymp
@@ -57,6 +59,45 @@ def processing(image_):
     return gray, edges, threshold, distance, output
 
 
+def reLU(value):
+
+    if value < 0:
+        value *= 0
+
+    return value
+
+
+def convolution_3d(tensor_, filter_):
+
+    W, H, D = tensor_.shape
+    w, h, d = filter_.shape
+
+    out_ = np.empty((W, H))
+
+    for x in range(0, W):
+        for y in range(0, H):
+
+            out_[x][y] = 0
+
+            for z in range(0, D):
+
+                for x_ in range(0, w):
+                    for y_ in range(0, h):
+                        for z_ in range(0, d):
+
+                            if (x >= 0 + int(w / 2)) and (x < W - int(w / 2)) and \
+                                    (y >= 0 + int(h / 2)) and (y < H - int(h / 2)) and \
+                                    (z >= 0 + int(d / 2)) and (z < D - int(d / 2)):
+                                out_[x][y] += tensor_[x - int(w / 2) + x_][y - int(h / 2) + y_][z - int(d / 2) + z_] *\
+                                              filter_[x_][y_][z_]
+                            else:
+                                out_[x][y] += 0
+
+            out_[x][y] = int(reLU(out_[x][y] / (w * h * d)))
+
+    return out_
+
+
 image = cv2.imread("../images/image1.png", cv2.IMREAD_COLOR)
 
 gray_, edges_, threshold_, distance_, output_ = processing(image)
@@ -69,7 +110,27 @@ for name in names:
     cv2.imwrite('../result/' + name + '.png', images[i])
     i += 1
 
-print(output_)
+W, H, D = 5, 7, 9
+w, h, d = 3, 3, 5
+
+tensor_ = np.empty((W, H, D))
+filter_ = np.empty((w, h, d))
+
+for x in range(0, W):
+    for y in range(0, H):
+        for z in range(0, D):
+            tensor_[x][y][z] = int(random() * 100)
+            if (x < w) & (y < h) & (z < d):
+                filter_[x][y][z] = random() * 10/(w*h*d)
+
+conv_ = convolution_3d(tensor_, filter_)
+
+print('tensor')
+print(tensor_)
+print('filter')
+print(filter_)
+print('conv')
+print(conv_)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
